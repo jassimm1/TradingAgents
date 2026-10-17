@@ -15,8 +15,43 @@ services:
       - key: GROQ_API_KEY
         sync: false
       - key: TRADINGAGENTS_LLM_PROVIDER
-        value: groq
+        value: openai_compatible
+      - key: TRADINGAGENTS_FREELLMAPI_URL
+        value: https://tradingagents-freellmapi.onrender.com
+      - key: OPENAI_COMPATIBLE_API_KEY
+        generateValue: true
       - key: TRADINGAGENTS_QUICK_THINK_LLM
-        value: openai/gpt-oss-20b
+        value: auto
       - key: TRADINGAGENTS_DEEP_THINK_LLM
-        value: openai/gpt-oss-20b
+        value: auto
+  - type: web
+    name: tradingagents-freellmapi
+    runtime: docker
+    plan: free
+    rootDir: ./cloud/freellmapi
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/ping
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: NVIDIA_API_KEY
+        fromService:
+          name: tradingagents-phone
+          type: web
+          envVarKey: NVIDIA_API_KEY
+      - key: GROQ_API_KEY
+        fromService:
+          name: tradingagents-phone
+          type: web
+          envVarKey: GROQ_API_KEY
+      - key: FREEAPI_UNIFIED_API_KEY
+        fromService:
+          name: tradingagents-phone
+          type: web
+          envVarKey: OPENAI_COMPATIBLE_API_KEY
+      - key: FREEAPI_ADMIN_PASSWORD
+        generateValue: true
+      - key: FREEAPI_ENCRYPTION_KEY_B64
+        generateValue: true

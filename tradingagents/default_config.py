@@ -16,6 +16,7 @@ _ENV_OVERRIDES = {
     "TRADINGAGENTS_DEEP_THINK_BACKEND_URL":    "deep_think_backend_url",
     "TRADINGAGENTS_QUICK_THINK_BACKEND_URL":   "quick_think_backend_url",
     "TRADINGAGENTS_LLM_BACKEND_URL":      "backend_url",
+    "TRADINGAGENTS_FREELLMAPI_URL":        "freellmapi_url",
     "TRADINGAGENTS_OUTPUT_LANGUAGE":      "output_language",
     "TRADINGAGENTS_MAX_DEBATE_ROUNDS":    "max_debate_rounds",
     "TRADINGAGENTS_MAX_RISK_ROUNDS":      "max_risk_discuss_rounds",
@@ -80,7 +81,7 @@ def build_default_config() -> dict:
     Read when the package is imported, as DEFAULT_CONFIG; call it again to see
     the environment as it is now.
     """
-    return _apply_env_overrides({
+    config = _apply_env_overrides({
         "results_dir": os.getenv("TRADINGAGENTS_RESULTS_DIR") or os.path.join(_TRADINGAGENTS_HOME, "logs"),
         "data_cache_dir": os.getenv("TRADINGAGENTS_CACHE_DIR") or os.path.join(_TRADINGAGENTS_HOME, "cache"),
         "memory_log_path": os.getenv("TRADINGAGENTS_MEMORY_LOG_PATH") or os.path.join(_TRADINGAGENTS_HOME, "memory", "trading_memory.md"),
@@ -98,6 +99,7 @@ def build_default_config() -> dict:
         # provider-specific URL here would leak (e.g. OpenAI's /v1 was previously
         # being forwarded to Gemini, producing malformed request URLs).
         "backend_url": None,
+        "freellmapi_url": None,
         # A tier may name its own provider and endpoint (#1440): the quick tier serves
         # the analysts, researchers, debaters and trader, the deep tier the managers.
         # None means the tier uses llm_provider and backend_url.
@@ -204,6 +206,9 @@ def build_default_config() -> dict:
         },
 
     })
+    if config["freellmapi_url"] and not os.environ.get("TRADINGAGENTS_LLM_BACKEND_URL"):
+        config["backend_url"] = config["freellmapi_url"].rstrip("/") + "/v1"
+    return config
 
 
 DEFAULT_CONFIG = build_default_config()
