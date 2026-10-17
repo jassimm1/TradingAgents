@@ -23,6 +23,7 @@ load_dotenv(_ROOT / ".env", override=False)
 
 _LOG = logging.getLogger("tradingagents.web")
 _ALLOWED_ANALYSTS = {"market", "news", "fundamentals", "sentiment"}
+_GRAPH_ANALYST_KEYS = {"sentiment": "social"}
 _TICKER_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.^=-]{0,19}$")
 _JOBS: dict[str, dict] = {}
 _JOBS_LOCK = threading.Lock()
@@ -94,6 +95,10 @@ def _json(handler: BaseHTTPRequestHandler, status: int, data: dict) -> None:
     handler.wfile.write(body)
 
 
+def _graph_analyst_keys(analysts: list[str]) -> list[str]:
+    return [_GRAPH_ANALYST_KEYS.get(key, key) for key in analysts]
+
+
 def _run_job(job_id: str, ticker: str, trade_date: str, analysts: list[str]) -> None:
     global _ACTIVE_JOB
     try:
@@ -101,7 +106,9 @@ def _run_job(job_id: str, ticker: str, trade_date: str, analysts: list[str]) -> 
         from tradingagents.default_config import DEFAULT_CONFIG
         from tradingagents.graph.trading_graph import TradingAgentsGraph
 
-        graph = TradingAgentsGraph(analysts, config=DEFAULT_CONFIG.copy(), debug=False)
+        graph = TradingAgentsGraph(
+            _graph_analyst_keys(analysts), config=DEFAULT_CONFIG.copy(), debug=False
+        )
         state, signal = graph.propagate(ticker, trade_date)
         rating = run_rating(state) or signal
         report_dir = graph.save_reports(state, ticker, html=False)
