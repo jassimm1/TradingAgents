@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: tradingagents-phone
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.web
+    healthCheckPath: /health
+    envVars:
+      - key: APP_USERNAME
+        sync: false
+      - key: APP_PASSWORD
+        sync: false
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: TRADINGAGENTS_LLM_PROVIDER
+        value: nvidia
+      - key: TRADINGAGENTS_QUICK_THINK_LLM
+        value: deepseek-ai/deepseek-v4.1-flash
+      - key: TRADINGAGENTS_DEEP_THINK_LLM
+        value: moonshotai/kimi-k2.6
