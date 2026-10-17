@@ -12,9 +12,11 @@ services:
         sync: false
       - key: NVIDIA_API_KEY
         sync: false
+      - key: GROQ_API_KEY
+        sync: false
       - key: TRADINGAGENTS_LLM_PROVIDER
-        value: nvidia
+        value: groq
       - key: TRADINGAGENTS_QUICK_THINK_LLM
-        value: deepseek-ai/deepseek-v4.1-flash
+        value: openai/gpt-oss-20b
       - key: TRADINGAGENTS_DEEP_THINK_LLM
-        value: moonshotai/kimi-k2.6
+        value: openai/gpt-oss-20b
